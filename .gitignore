@@ -1,0 +1,9 @@
+# Fichiers générés par .NET
+[Bb]in/
+[Oo]bj/
+
+# Fichiers de configuration de Visual Studio
+.vs/
+*.user
+*.suo
+*.sln.docstates
