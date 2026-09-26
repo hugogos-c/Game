@@ -2,32 +2,12 @@
 {
     public class QueuedAction
     {
-        public required IReadOnlyList<Character> Casters { get; init; }
+        public required Character Initiator { get; init; }
+        public required IReadOnlyList<Character> Participants { get; init; }
         public required IReadOnlyList<Character> Targets { get; init; }
         public required IAbility Ability { get; init; }
 
-        public int Speed => Casters.Max(c => c.BaseStats.Speed);
-    }
-
-    public static class TargetResolver
-    {
-        public static List<Character> ResolveAuto(
-            TargetMode mode,
-            Character mainCaster,
-            Team casterTeam,
-            List<Team> allTeams)
-        {
-            var allies = casterTeam.Members.Where(m => m.IsAlive).ToList();
-            var enemies = allTeams.Where(t => t != casterTeam).SelectMany(t => t.Members).Where(m => m.IsAlive).ToList();
-
-            return mode switch
-            {
-                TargetMode.Self => new List<Character> { mainCaster },
-                TargetMode.AllAllies => allies,
-                TargetMode.AllEnemies => enemies,
-                _ => new List<Character>()
-            };
-        }
+        public int Speed => Initiator.BaseStats.Speed;
     }
 
     public class Battle
@@ -48,39 +28,48 @@
 
             foreach (var action in sortedActions)
             {
-                var primaryCaster = action.Casters.First();
-                if (!primaryCaster.IsAlive)
+                var initialContext = new AbilityContext
                 {
-                    Console.WriteLine($"\n> Action annulée : {primaryCaster.Name} est K.O.");
+                    Initiator = action.Initiator,
+                    Participants = action.Participants,
+                    Targets = action.Targets,
+                    Battle = this
+                };
+
+                var availableTargets = action.Ability.GetAvailableTargets(initialContext);
+
+                var validTargets = initialContext.Targets.Where(availableTargets.Contains).ToList();
+
+                if (initialContext.Targets.Any() && (!availableTargets.Any() || validTargets.Count == 0))
+                {
+                    Console.WriteLine($"\n> Action annulée : aucune cible valide");
                     continue;
                 }
-
-                if (!action.Ability.CanUse(action.Casters, this))
-                {
-                    Console.WriteLine($"\n> {primaryCaster.Name} n'a plus les ressources pour exécuter '{action.Ability.Name}'.");
-                    continue;
-                }
-
-                var validTargets = action.Targets.Where(t => t.IsAlive).ToList();
-                if (validTargets.Count == 0 && action.Ability.TargetMode != TargetMode.Self)
-                {
-                    Console.WriteLine($"\n> '{action.Ability.Name}' échoue : aucune cible valide.");
-                    continue;
-                }
-
-                action.Ability.PayCost(action.Casters, this);
 
                 var context = new AbilityContext
                 {
-                    Casters = action.Casters,
+                    Initiator = action.Initiator,
+                    Participants = action.Participants,
                     Targets = validTargets,
                     Battle = this
                 };
 
-                string castersName = string.Join(" & ", action.Casters.Select(c => c.Name));
+                var validation = action.Ability.Validate(context);
+
+                if (!validation.IsValid)
+                {
+                    Console.WriteLine($"\n> Action annulée : {validation.Error}");
+                    continue;
+                }
+
+                #region À mettre dans QueuedAction.Execute()
+                action.Ability.PayCost(context);
+
+                string castersName = string.Join(" & ", [action.Initiator.Name, ..action.Participants.Select(c => c.Name)]);
                 Console.WriteLine($"\n> Exec : '{action.Ability.Name}' par {castersName}");
 
-                action.Ability.Execute(context);
+                action.Ability.Use(context);
+                #endregion
             }
         }
     }

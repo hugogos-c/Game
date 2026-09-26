@@ -4,27 +4,52 @@
     {
         string Id { get; }
         string Name { get; }
-        TargetMode TargetMode { get; }
+        IReadOnlyList<ITargetsFilter> TargetsFilters { get; }
+        int RequiredTargetsCount { get; }
+        int RequiredParticipantsCount { get; }
         IReadOnlyList<ISequence> Sequences { get; }
 
-        bool CanUse(IReadOnlyList<Character> casters, Battle battle);
-        void PayCost(IReadOnlyList<Character> casters, Battle battle);
-        void Execute(AbilityContext context);
+        IReadOnlyList<Character> GetAvailableTargets(AbilityContext context);
+        AbilityValidationResult Validate(AbilityContext context);
+        void PayCost(AbilityContext context);
+        void Use(AbilityContext context);
     }
 
     public abstract class BaseAbility : IAbility
     {
         public required string Id { get; init; }
         public required string Name { get; init; }
-        public required TargetMode TargetMode { get; init; }
-        public required List<ISequence> Sequences { get; init; }
+        public int RequiredTargetsCount { get; init; } = 1;
+        public IReadOnlyList<ITargetsFilter> TargetsFilters { get; init; } = [];
+        public int RequiredParticipantsCount { get; init; } = 0;
+        public required IReadOnlyList<ISequence> Sequences { get; init; }
 
-        IReadOnlyList<ISequence> IAbility.Sequences => Sequences;
+        public IReadOnlyList<Character> GetAvailableTargets(AbilityContext context)
+        {
+            IReadOnlyList<Character> availableTargets = context.Battle.Teams.SelectMany(team => team.Members).ToList();
 
-        public virtual bool CanUse(IReadOnlyList<Character> casters, Battle battle) => true;
-        public virtual void PayCost(IReadOnlyList<Character> casters, Battle battle) { }
+            foreach (var filter in TargetsFilters)
+            {
+                availableTargets = filter.Filter(availableTargets, context);
+            }
 
-        public virtual void Execute(AbilityContext context)
+            return availableTargets;
+        }
+
+        public AbilityValidationResult Validate(AbilityContext context)
+        {
+            if (!context.Initiator.IsAlive) return AbilityValidationResult.Invalid(AbilityValidationError.InitiatorDead);
+
+            if (context.Participants.Any(p => !p.IsAlive)) return AbilityValidationResult.Invalid(AbilityValidationError.ParticipantDead);
+
+            return ValidateSpecific(context);
+        }
+
+        protected virtual AbilityValidationResult ValidateSpecific(AbilityContext context) => AbilityValidationResult.Valid();
+
+        public virtual void PayCost(AbilityContext context) { }
+
+        public virtual void Use(AbilityContext context)
         {
             foreach (var sequence in Sequences)
             {
@@ -35,48 +60,42 @@
         }
     }
 
-    public class Skill : BaseAbility
-    {
-        // Competence physique / basique (sans cout en PM)
-    }
+    public sealed class Skill : BaseAbility;
 
-    public class Spell : BaseAbility
+    public sealed class Spell : BaseAbility
     {
         public required int ManaCost { get; init; }
 
-        public override bool CanUse(IReadOnlyList<Character> casters, Battle battle)
+        protected override AbilityValidationResult ValidateSpecific(AbilityContext context)
         {
-            return casters.First().CurrentMp >= ManaCost;
+            if (context.Initiator.CurrentMp < ManaCost) return AbilityValidationResult.Invalid(AbilityValidationError.NotEnoughMana);
+
+            return AbilityValidationResult.Valid();
         }
 
-        public override void PayCost(IReadOnlyList<Character> casters, Battle battle)
+        public override void PayCost(AbilityContext context)
         {
-            casters.First().ConsumeMp(ManaCost);
+            context.Initiator.ConsumeMp(ManaCost);
         }
     }
 
-    public class Synergy : BaseAbility
+    public sealed class Synergy : BaseAbility
     {
-        public int RequiredCastersCount { get; init; } = 2;
         public required int RequiredSynergyBars { get; init; }
 
-        public override bool CanUse(IReadOnlyList<Character> casters, Battle battle)
+        protected override AbilityValidationResult ValidateSpecific(AbilityContext context)
         {
-            var initiator = casters.First();
-            var team = battle.Teams.First(t => t.Members.Contains(initiator));
+            var team = context.Battle.Teams.First(t => t.Members.Contains(context.Initiator));
 
-            // Compte combien de membres vivants de l'équipe possèdent aussi cette synergie
-            int availableCasters = team.Members
-                .Count(m => m.IsAlive && m.Abilities.Any(a => a.Id == Id));
+            if (!team.SynergyGauge.HasEnoughBars(RequiredSynergyBars)) return AbilityValidationResult.Invalid(AbilityValidationError.NotEnoughSynergy);
 
-            if (availableCasters < RequiredCastersCount) return false;
-
-            return team.SynergyGauge.HasEnoughBars(RequiredSynergyBars);
+            return AbilityValidationResult.Valid();
         }
 
-        public override void PayCost(IReadOnlyList<Character> casters, Battle battle)
+        public override void PayCost(AbilityContext context)
         {
-            var team = battle.Teams.First(t => t.Members.Contains(casters.First()));
+            var team = context.Battle.Teams.First(t => t.Members.Contains(context.Initiator));
+
             team.SynergyGauge.ConsumeBars(RequiredSynergyBars);
         }
     }

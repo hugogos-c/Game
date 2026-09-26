@@ -13,7 +13,37 @@ namespace Game
             {
                 Id = "coup_epee",
                 Name = "Coup d'épée",
-                TargetMode = TargetMode.SingleEnemy,
+                TargetsFilters =
+                [
+                    new EnemiesFilter(),
+                    new IsAliveFilter(),
+                ],
+                Sequences =
+                [
+                    new Sequence
+                    {
+                        TargetSelector = new AbilityTargetsSelector(),
+                        Effects =
+                        [
+                            new DamageEffect
+                            {
+                                Power = 30,
+                            },
+                        ],
+                    },
+                ],
+            };
+
+            var tripleFleches = new Skill
+            {
+                Id = "triple_fleches",
+                Name = "Triple flèches",
+                RequiredTargetsCount = 3,
+                TargetsFilters =
+                [
+                    new EnemiesFilter(),
+                    new IsAliveFilter(),
+                ],
                 Sequences =
                 [
                     new Sequence
@@ -34,7 +64,11 @@ namespace Game
             {
                 Id = "decharge_electrique",
                 Name = "Décharge électrique",
-                TargetMode = TargetMode.SingleEnemy,
+                TargetsFilters =
+                [
+                    new EnemiesFilter(),
+                    new IsAliveFilter(),
+                ],
                 Sequences =
                 [
                     new Sequence
@@ -55,7 +89,11 @@ namespace Game
             {
                 Id = "execution",
                 Name = "Exécution",
-                TargetMode = TargetMode.SingleEnemy,
+                TargetsFilters =
+                [
+                    new EnemiesFilter(),
+                    new IsAliveFilter(),
+                ],
                 Sequences =
                 [
                     new Sequence
@@ -90,7 +128,62 @@ namespace Game
             {
                 Id = "soin",
                 Name = "Soin",
-                TargetMode = TargetMode.SingleAlly,
+                TargetsFilters =
+                [
+                    new AlliesFilter(),
+                    new IsAliveFilter(),
+                ],
+                Sequences =
+                [
+                    new Sequence
+                    {
+                        TargetSelector = new AbilityTargetsSelector(),
+                        Effects =
+                        [
+                            new HealEffect
+                            {
+                                Amount = 60,
+                            },
+                        ],
+                    },
+                ],
+            };
+
+            var resurrection = new Skill
+            {
+                Id = "resurrection",
+                Name = "Résurrection",
+                TargetsFilters =
+                [
+                    new AlliesFilter(),
+                    new IsDeadFilter(),
+                ],
+                Sequences =
+                [
+                    new Sequence
+                    {
+                        TargetSelector = new AbilityTargetsSelector(),
+                        Effects =
+                        [
+                            new HealEffect
+                            {
+                                Amount = 60,
+                            },
+                        ],
+                    },
+                ],
+            };
+
+            var soinMulti = new Skill
+            {
+                Id = "soin_multi",
+                Name = "Soin multi",
+                RequiredTargetsCount = 2,
+                TargetsFilters =
+                [
+                    new AlliesFilter(),
+                    new IsAliveFilter(),
+                ],
                 Sequences =
                 [
                     new Sequence
@@ -111,7 +204,11 @@ namespace Game
             {
                 Id = "feu",
                 Name = "Feu",
-                TargetMode = TargetMode.SingleEnemy,
+                TargetsFilters =
+                [
+                    new EnemiesFilter(),
+                    new IsAliveFilter(),
+                ],
                 ManaCost = 10,
                 Sequences =
                 [
@@ -133,7 +230,11 @@ namespace Game
             {
                 Id = "foudre",
                 Name = "Foudre",
-                TargetMode = TargetMode.SingleEnemy,
+                TargetsFilters =
+                [
+                    new EnemiesFilter(),
+                    new IsAliveFilter(),
+                ],
                 ManaCost = 15,
                 Sequences =
                 [
@@ -154,15 +255,19 @@ namespace Game
             var amourImpossible = new Synergy
             {
                 Id = "amour_impossible",
-                Name = "Amour Impossible",
-                TargetMode = TargetMode.SingleEnemy,
-                RequiredCastersCount = 2,
+                Name = "Amour impossible",
+                TargetsFilters =
+                [
+                    new EnemiesFilter(),
+                    new IsAliveFilter(),
+                ],
+                RequiredParticipantsCount = 1,
                 RequiredSynergyBars = 2,
                 Sequences =
                 [
                     new Sequence
                     {
-                        TargetSelector = new CastersSelector(),
+                        TargetSelector = new AbilityUsersSelector(),
                         Effects =
                         [
                             new HealEffect
@@ -188,9 +293,13 @@ namespace Game
             var comboGobelin = new Synergy
             {
                 Id = "combo_gobelin",
-                Name = "Combo Gobelin",
-                TargetMode = TargetMode.SingleEnemy,
-                RequiredCastersCount = 2,
+                Name = "Combo gobelin",
+                TargetsFilters =
+                [
+                    new EnemiesFilter(),
+                    new IsAliveFilter(),
+                ],
+                RequiredParticipantsCount = 1,
                 RequiredSynergyBars = 1,
                 Sequences =
                 [
@@ -224,38 +333,44 @@ namespace Game
             var aldrick = new Character(
                 "Aldrick",
                 new Stats(MaxHp: 400, MaxMp: 30, Attack: 35, Defense: 15, Speed: 40),
-                [coupEpee, execution, feu, soin, amourImpossible]
+                [coupEpee, execution, feu, soin, resurrection, amourImpossible]
             );
 
             var veya = new Character(
                 "Veya",
                 new Stats(MaxHp: 300, MaxMp: 60, Attack: 45, Defense: 10, Speed: 80),
-                [dechargeElectrique, foudre, soin, amourImpossible]
+                [dechargeElectrique, tripleFleches, foudre, soin, amourImpossible]
             );
 
             var gobelin1 = new Character(
                 "Gobelin 1",
-                new Stats(MaxHp: 160, MaxMp: 0, Attack: 25, Defense: 5, Speed: 60),
-                [coupEpee, comboGobelin]
+                new Stats(MaxHp: 160, MaxMp: 0, Attack: 25, Defense: 5, Speed: 50),
+                [coupEpee, soin, soinMulti, comboGobelin]
             );
 
             var gobelin2 = new Character(
                 "Gobelin 2",
                 new Stats(MaxHp: 160, MaxMp: 0, Attack: 25, Defense: 5, Speed: 50),
-                [coupEpee, comboGobelin]
+                [coupEpee, soin, soinMulti, comboGobelin]
+            );
+
+            var gobelin3 = new Character(
+                "Gobelin 3",
+                new Stats(MaxHp: 160, MaxMp: 0, Attack: 25, Defense: 5, Speed: 50),
+                [coupEpee, soin, soinMulti, comboGobelin]
             );
 
             var mercenaire = new Character(
                 "Mercenaire",
                 new Stats(MaxHp: 220, MaxMp: 20, Attack: 40, Defense: 10, Speed: 70),
-                [coupEpee, soin]
+                [coupEpee, tripleFleches, soin]
             );
 
             // --------------------------------------------------------------------
             // 3. CONSTITUTION DES ÉQUIPES ET DU COMBAT
             // --------------------------------------------------------------------
             var playerTeam = new Team("Joueur", [aldrick, veya]);
-            var goblinsTeam = new Team("Gobelins", [gobelin1, gobelin2]);
+            var goblinsTeam = new Team("Gobelins", [gobelin1, gobelin2, gobelin3]);
             var mercenaryTeam = new Team("Mercenaire", [mercenaire]);
 
             var battle = new Battle([playerTeam, goblinsTeam, mercenaryTeam]);
@@ -287,22 +402,38 @@ namespace Game
 
                     Console.WriteLine($"\n>>> Tour de : {caster.Name} (Équipe {casterTeam.Name})");
 
-                    // FILTRE CORRIGÉ : On vérifie que la synergie a suffisamment de partenaires NON OCCUPÉS
                     var usableAbilities = caster.Abilities
-                        .Where(a => a.CanUse([caster], battle))
                         .Where(a =>
                         {
-                            if (a is Synergy syn)
+                            var initialContext = new AbilityContext
                             {
-                                int availablePartnersCount = casterTeam.Members
-                                    .Count(m => m.IsAlive
-                                             && m != caster
-                                             && !busyCharacters.Contains(m)
-                                             && m.Abilities.Any(ab => ab.Id == syn.Id));
+                                Initiator = caster,
+                                Participants = [],
+                                Targets = [],
+                                Battle = battle
+                            };
 
-                                return (availablePartnersCount + 1) >= syn.RequiredCastersCount;
+                            if (a.RequiredTargetsCount != 0)
+                            {
+                                var availableTargets = a.GetAvailableTargets(initialContext);
+
+                                if (!availableTargets.Any()) return false;
                             }
-                            return true;
+
+                            return a.Validate(initialContext).IsValid;
+                        })
+                        .Where(a =>
+                        {
+                            if (a.RequiredParticipantsCount == 0)
+                                return true;
+
+                            int availableParticipantsCount = casterTeam.Members
+                                .Count(m => m.IsAlive
+                                         && m != caster
+                                         && !busyCharacters.Contains(m)
+                                         && m.Abilities.Any(ab => ab == a));
+
+                            return availableParticipantsCount >= a.RequiredParticipantsCount;
                         })
                         .ToList();
 
@@ -328,73 +459,103 @@ namespace Game
                     int choice = ReadChoice(usableAbilities.Count);
                     var chosenAbility = usableAbilities[choice];
 
-                    var casters = new List<Character> { caster };
+                    var participants = new List<Character>();
 
-                    if (chosenAbility is Synergy synergy)
+                    if (chosenAbility.RequiredParticipantsCount > 0)
                     {
-                        int neededPartnersCount = synergy.RequiredCastersCount - 1;
-
-                        var availablePartners = casterTeam.Members
+                        var availableParticipants = casterTeam.Members
                             .Where(m => m.IsAlive
                                      && m != caster
                                      && !busyCharacters.Contains(m)
-                                     && m.Abilities.Any(a => a.Id == chosenAbility.Id))
+                                     && m.Abilities.Any(a => a == chosenAbility))
                             .ToList();
 
-                        if (availablePartners.Count == neededPartnersCount)
+                        if (availableParticipants.Count == chosenAbility.RequiredParticipantsCount)
                         {
-                            casters.AddRange(availablePartners);
+                            participants.AddRange(availableParticipants);
                         }
-                        else if (availablePartners.Count > neededPartnersCount)
+                        else
                         {
-                            for (int p = 0; p < neededPartnersCount; p++)
+                            for (int p = 0; p < chosenAbility.RequiredParticipantsCount; p++)
                             {
-                                Console.WriteLine($"\nChoisir le partenaire {p + 1}/{neededPartnersCount} pour la synergie :");
-                                for (int i = 0; i < availablePartners.Count; i++)
+                                Console.WriteLine($"\nChoisir le participant {p + 1}/{chosenAbility.RequiredParticipantsCount} :");
+
+                                for (int i = 0; i < availableParticipants.Count; i++)
                                 {
-                                    Console.WriteLine($"  {i + 1}. {availablePartners[i].Name} ({availablePartners[i].CurrentHp}/{availablePartners[i].BaseStats.MaxHp} PV)");
+                                    Console.WriteLine($"  {i + 1}. {availableParticipants[i].Name} ({availableParticipants[i].CurrentHp}/{availableParticipants[i].BaseStats.MaxHp} PV)");
                                 }
 
-                                int partnerChoice = ReadChoice(availablePartners.Count);
-                                var selectedPartner = availablePartners[partnerChoice];
+                                int participantChoice = ReadChoice(availableParticipants.Count);
 
-                                casters.Add(selectedPartner);
-                                availablePartners.RemoveAt(partnerChoice);
+                                var selectedParticipant = availableParticipants[participantChoice];
+
+                                participants.Add(selectedParticipant);
+                                availableParticipants.RemoveAt(participantChoice);
                             }
                         }
 
-                        string partners = string.Join(", ", casters.Select(c => c.Name));
-                        Console.WriteLine($"   🤝 Synergie préparée avec : {partners}");
+                        string participantNames = string.Join(", ", participants.Select(p => p.Name));
+
+                        Console.WriteLine($"   🤝 Participants sélectionnés : {participantNames}");
                     }
 
-                    List<Character> targets;
-                    if (chosenAbility.TargetMode == TargetMode.SingleEnemy || chosenAbility.TargetMode == TargetMode.SingleAlly)
+                    var availableTargets = chosenAbility.GetAvailableTargets(new AbilityContext
                     {
-                        var options = chosenAbility.TargetMode == TargetMode.SingleEnemy
-                            ? battle.Teams.Where(t => t != casterTeam).SelectMany(t => t.Members).Where(m => m.IsAlive).ToList()
-                            : casterTeam.Members.Where(m => m.IsAlive).ToList();
+                        Initiator = caster,
+                        Participants = participants,
+                        Targets = [],
+                        Battle = battle
+                    });
 
-                        Console.WriteLine("Choisir une cible :");
-                        for (int i = 0; i < options.Count; i++)
-                        {
-                            Console.WriteLine($"  {i + 1}. {options[i].Name} ({options[i].CurrentHp}/{options[i].BaseStats.MaxHp} PV)");
-                        }
-                        int targetChoice = ReadChoice(options.Count);
-                        targets = new List<Character> { options[targetChoice] };
+                    List<Character> targets;
+
+                    if (availableTargets.Count == 0)
+                    {
+                        Console.WriteLine("Aucune cible disponible.");
+                        continue;
+                    }
+                    else if (chosenAbility.RequiredTargetsCount == -1 || chosenAbility.RequiredTargetsCount >= availableTargets.Count)
+                    {
+                        targets = availableTargets.ToList();
                     }
                     else
                     {
-                        targets = TargetResolver.ResolveAuto(chosenAbility.TargetMode, caster, casterTeam, battle.Teams);
+                        int targetsCount = Math.Min(chosenAbility.RequiredTargetsCount, availableTargets.Count);
+
+                        targets = new List<Character>();
+
+                        for (int i = 0; i < targetsCount; i++)
+                        {
+                            var options = availableTargets
+                                .Where(target => !targets.Contains(target))
+                                .ToList();
+
+                            Console.WriteLine(targetsCount == 1 ? "Choisir une cible :" : $"Choisir la cible {i + 1}/{targetsCount} :");
+
+                            for (int j = 0; j < options.Count; j++)
+                            {
+                                var target = options[j];
+
+                                Console.WriteLine($"  {j + 1}. {target.Name} ({target.CurrentHp}/{target.BaseStats.MaxHp} PV)");
+                            }
+
+                            int targetChoice = ReadChoice(options.Count);
+
+                            targets.Add(options[targetChoice]);
+                        }
                     }
 
                     roundActions.Add(new QueuedAction
                     {
-                        Casters = casters,
+                        Initiator = caster,
+                        Participants = participants,
                         Targets = targets,
                         Ability = chosenAbility
                     });
 
-                    foreach (var c in casters) busyCharacters.Add(c);
+                    busyCharacters.Add(caster);
+
+                    foreach (var participant in participants) busyCharacters.Add(participant);
                 }
 
                 Console.WriteLine("\n[Appuyez sur Entrée pour exécuter le tour...]");
@@ -425,8 +586,7 @@ namespace Game
             while (true)
             {
                 Console.Write("> ");
-                if (int.TryParse(Console.ReadLine(), out int c) && c >= 1 && c <= max)
-                    return c - 1;
+                if (int.TryParse(Console.ReadLine(), out int c) && c >= 1 && c <= max) return c - 1;
                 Console.WriteLine($"Saisie invalide (1 à {max}).");
             }
         }

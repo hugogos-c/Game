@@ -5,7 +5,7 @@
         bool Evaluate(EffectContext context);
     }
 
-    public class TargetHpBelowCondition : ICondition
+    public sealed class TargetHpBelowCondition : ICondition
     {
         public required int Percentage { get; init; }
 
@@ -19,7 +19,7 @@
         }
     }
 
-    public class AndCondition : ICondition
+    public sealed class AndCondition : ICondition
     {
         public required IReadOnlyList<ICondition> Conditions { get; init; }
 
@@ -29,7 +29,7 @@
         }
     }
 
-    public class OrCondition : ICondition
+    public sealed class OrCondition : ICondition
     {
         public required IReadOnlyList<ICondition> Conditions { get; init; }
 
@@ -39,7 +39,7 @@
         }
     }
 
-    public class NotCondition : ICondition
+    public sealed class NotCondition : ICondition
     {
         public required ICondition Condition { get; init; }
 
