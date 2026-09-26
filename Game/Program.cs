@@ -51,6 +51,41 @@ namespace Game
                 ],
             };
 
+            var execution = new Skill
+            {
+                Id = "execution",
+                Name = "Exécution",
+                TargetMode = TargetMode.SingleEnemy,
+                Sequences =
+                [
+                    new Sequence
+                    {
+                        TargetSelector = new AbilityTargetsSelector(),
+
+                        Effects =
+                        [
+                            new ConditionalEffect
+                            {
+                                Condition = new TargetHpBelowCondition
+                                {
+                                    Percentage = 10,
+                                },
+
+                                Then = new DamageEffect
+                                {
+                                    Power = 999,
+                                },
+
+                                Else = new DamageEffect
+                                {
+                                    Power = 50,
+                                },
+                            },
+                        ],
+                    },
+                ],
+            };
+
             var soin = new Skill
             {
                 Id = "soin",
@@ -164,9 +199,19 @@ namespace Game
                         TargetSelector = new AbilityTargetsSelector(),
                         Effects =
                         [
-                            new DamageEffect
+                            new CompositeEffect
                             {
-                                Power = 70,
+                                Effects =
+                                [
+                                    new DamageEffect
+                                    {
+                                        Power = 70,
+                                    },
+                                    new DamageEffect
+                                    {
+                                        Power = 70,
+                                    },
+                                ],
                             },
                         ],
                     },
@@ -179,7 +224,7 @@ namespace Game
             var aldrick = new Character(
                 "Aldrick",
                 new Stats(MaxHp: 400, MaxMp: 30, Attack: 35, Defense: 15, Speed: 40),
-                [coupEpee, feu, soin, amourImpossible]
+                [coupEpee, execution, feu, soin, amourImpossible]
             );
 
             var veya = new Character(

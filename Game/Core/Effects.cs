@@ -36,4 +36,38 @@
             return new GenericResult();
         }
     }
+
+    public class ConditionalEffect : IEffect
+    {
+        public required ICondition Condition { get; init; }
+        public required IEffect Then { get; init; }
+        public IEffect? Else { get; init; }
+
+        public IEffectResult Execute(EffectContext context)
+        {
+            if (Condition.Evaluate(context))
+            {
+                return Then.Execute(context);
+            }
+
+            return Else?.Execute(context) ?? new GenericResult();
+        }
+    }
+
+    public class CompositeEffect : IEffect
+    {
+        public required IReadOnlyList<IEffect> Effects { get; init; }
+
+        public IEffectResult Execute(EffectContext context)
+        {
+            foreach (var effect in Effects)
+            {
+                if (context.AbilityContext.IsAborted) break;
+
+                effect.Execute(context);
+            }
+
+            return new GenericResult();
+        }
+    }
 }
