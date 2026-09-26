@@ -14,14 +14,20 @@ namespace Game
                 Id = "coup_epee",
                 Name = "Coup d'épée",
                 TargetMode = TargetMode.SingleEnemy,
-                Effects = new List<IEffect>
-                {
-                    new DamageEffect
+                Sequences =
+                [
+                    new Sequence
                     {
-                        Selector = new AbilityTargetsSelector(),
-                        Power = 30
-                    }
-                }
+                        TargetSelector = new AbilityTargetsSelector(),
+                        Effects =
+                        [
+                            new DamageEffect
+                            {
+                                Power = 30,
+                            },
+                        ],
+                    },
+                ],
             };
 
             var dechargeElectrique = new Skill
@@ -29,14 +35,20 @@ namespace Game
                 Id = "decharge_electrique",
                 Name = "Décharge électrique",
                 TargetMode = TargetMode.SingleEnemy,
-                Effects = new List<IEffect>
-                {
-                    new DamageEffect
+                Sequences =
+                [
+                    new Sequence
                     {
-                        Selector = new AbilityTargetsSelector(),
-                        Power = 25
-                    }
-                }
+                        TargetSelector = new AbilityTargetsSelector(),
+                        Effects =
+                        [
+                            new DamageEffect
+                            {
+                                Power = 25,
+                            },
+                        ],
+                    },
+                ],
             };
 
             var soin = new Skill
@@ -44,14 +56,20 @@ namespace Game
                 Id = "soin",
                 Name = "Soin",
                 TargetMode = TargetMode.SingleAlly,
-                Effects = new List<IEffect>
-                {
-                    new HealEffect
+                Sequences =
+                [
+                    new Sequence
                     {
-                        Selector = new AbilityTargetsSelector(),
-                        Amount = 60
-                    }
-                }
+                        TargetSelector = new AbilityTargetsSelector(),
+                        Effects =
+                        [
+                            new HealEffect
+                            {
+                                Amount = 60,
+                            },
+                        ],
+                    },
+                ],
             };
 
             var feu = new Spell
@@ -60,14 +78,20 @@ namespace Game
                 Name = "Feu",
                 TargetMode = TargetMode.SingleEnemy,
                 ManaCost = 10,
-                Effects = new List<IEffect>
-                {
-                    new DamageEffect
+                Sequences =
+                [
+                    new Sequence
                     {
-                        Selector = new AbilityTargetsSelector(),
-                        Power = 45
-                    }
-                }
+                        TargetSelector = new AbilityTargetsSelector(),
+                        Effects =
+                        [
+                            new DamageEffect
+                            {
+                                Power = 45,
+                            },
+                        ],
+                    },
+                ],
             };
 
             var foudre = new Spell
@@ -76,14 +100,20 @@ namespace Game
                 Name = "Foudre",
                 TargetMode = TargetMode.SingleEnemy,
                 ManaCost = 15,
-                Effects = new List<IEffect>
-                {
-                    new DamageEffect
+                Sequences =
+                [
+                    new Sequence
                     {
-                        Selector = new AbilityTargetsSelector(),
-                        Power = 55
-                    }
-                }
+                        TargetSelector = new AbilityTargetsSelector(),
+                        Effects =
+                        [
+                            new DamageEffect
+                            {
+                                Power = 55,
+                            },
+                        ],
+                    },
+                ],
             };
 
             var amourImpossible = new Synergy
@@ -93,19 +123,31 @@ namespace Game
                 TargetMode = TargetMode.SingleEnemy,
                 RequiredCastersCount = 2,
                 RequiredSynergyBars = 2,
-                Effects = new List<IEffect>
-                {
-                    new HealEffect
+                Sequences =
+                [
+                    new Sequence
                     {
-                        Selector = new CastersSelector(),
-                        Amount = 80
+                        TargetSelector = new CastersSelector(),
+                        Effects =
+                        [
+                            new HealEffect
+                            {
+                                Amount = 80,
+                            },
+                        ],
                     },
-                    new DamageEffect
+                    new Sequence
                     {
-                        Selector = new AbilityTargetsSelector(),
-                        Power = 100
-                    }
-                }
+                        TargetSelector = new AbilityTargetsSelector(),
+                        Effects =
+                        [
+                            new DamageEffect
+                            {
+                                Power = 100,
+                            },
+                        ],
+                    },
+                ],
             };
 
             var comboGobelin = new Synergy
@@ -115,14 +157,20 @@ namespace Game
                 TargetMode = TargetMode.SingleEnemy,
                 RequiredCastersCount = 2,
                 RequiredSynergyBars = 1,
-                Effects = new List<IEffect>
-                {
-                    new DamageEffect
+                Sequences =
+                [
+                    new Sequence
                     {
-                        Selector = new AbilityTargetsSelector(),
-                        Power = 70
-                    }
-                }
+                        TargetSelector = new AbilityTargetsSelector(),
+                        Effects =
+                        [
+                            new DamageEffect
+                            {
+                                Power = 70,
+                            },
+                        ],
+                    },
+                ],
             };
 
             // --------------------------------------------------------------------

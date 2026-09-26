@@ -2,13 +2,11 @@
 {
     public interface IEffect
     {
-        ITargetSelector Selector { get; }
         IEffectResult Execute(EffectContext context);
     }
 
     public class DamageEffect : IEffect
     {
-        public required ITargetSelector Selector { get; init; }
         public required int Power { get; init; }
 
         public IEffectResult Execute(EffectContext context)
@@ -28,7 +26,6 @@
 
     public class HealEffect : IEffect
     {
-        public required ITargetSelector Selector { get; init; }
         public required int Amount { get; init; }
 
         public IEffectResult Execute(EffectContext context)

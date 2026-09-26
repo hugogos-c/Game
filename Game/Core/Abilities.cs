@@ -5,7 +5,7 @@
         string Id { get; }
         string Name { get; }
         TargetMode TargetMode { get; }
-        IReadOnlyList<IEffect> Effects { get; }
+        IReadOnlyList<ISequence> Sequences { get; }
 
         bool CanUse(IReadOnlyList<Character> casters, Battle battle);
         void PayCost(IReadOnlyList<Character> casters, Battle battle);
@@ -17,30 +17,20 @@
         public required string Id { get; init; }
         public required string Name { get; init; }
         public required TargetMode TargetMode { get; init; }
-        public required List<IEffect> Effects { get; init; }
+        public required List<ISequence> Sequences { get; init; }
 
-        IReadOnlyList<IEffect> IAbility.Effects => Effects;
+        IReadOnlyList<ISequence> IAbility.Sequences => Sequences;
 
         public virtual bool CanUse(IReadOnlyList<Character> casters, Battle battle) => true;
         public virtual void PayCost(IReadOnlyList<Character> casters, Battle battle) { }
 
         public virtual void Execute(AbilityContext context)
         {
-            foreach (var effect in Effects)
+            foreach (var sequence in Sequences)
             {
                 if (context.IsAborted) break;
 
-                var targets = effect.Selector.Select(context);
-
-                foreach (var target in targets)
-                {
-                    var result = effect.Execute(new EffectContext
-                    {
-                        AbilityContext = context,
-                        Target = target,
-                    });
-                    context.Results.Add(result);
-                }
+                sequence.Execute(context);
             }
         }
     }
