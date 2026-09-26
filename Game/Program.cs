@@ -1,4 +1,6 @@
-﻿namespace Game
+﻿using Game.Core;
+
+namespace Game
 {
     class Program
     {
@@ -12,7 +14,14 @@
                 Id = "coup_epee",
                 Name = "Coup d'épée",
                 TargetMode = TargetMode.SingleEnemy,
-                Effects = new List<IEffect> { new DealDamage { Power = 30 } }
+                Effects = new List<IEffect>
+                {
+                    new DamageEffect
+                    {
+                        Selector = new AbilityTargetsSelector(),
+                        Power = 30
+                    }
+                }
             };
 
             var dechargeElectrique = new Skill
@@ -20,7 +29,14 @@
                 Id = "decharge_electrique",
                 Name = "Décharge électrique",
                 TargetMode = TargetMode.SingleEnemy,
-                Effects = new List<IEffect> { new DealDamage { Power = 25 } }
+                Effects = new List<IEffect>
+                {
+                    new DamageEffect
+                    {
+                        Selector = new AbilityTargetsSelector(),
+                        Power = 25
+                    }
+                }
             };
 
             var soin = new Skill
@@ -28,7 +44,14 @@
                 Id = "soin",
                 Name = "Soin",
                 TargetMode = TargetMode.SingleAlly,
-                Effects = new List<IEffect> { new Heal { Amount = 60 } }
+                Effects = new List<IEffect>
+                {
+                    new HealEffect
+                    {
+                        Selector = new AbilityTargetsSelector(),
+                        Amount = 60
+                    }
+                }
             };
 
             var feu = new Spell
@@ -37,7 +60,14 @@
                 Name = "Feu",
                 TargetMode = TargetMode.SingleEnemy,
                 ManaCost = 10,
-                Effects = new List<IEffect> { new DealDamage { Power = 45 } }
+                Effects = new List<IEffect>
+                {
+                    new DamageEffect
+                    {
+                        Selector = new AbilityTargetsSelector(),
+                        Power = 45
+                    }
+                }
             };
 
             var foudre = new Spell
@@ -46,7 +76,14 @@
                 Name = "Foudre",
                 TargetMode = TargetMode.SingleEnemy,
                 ManaCost = 15,
-                Effects = new List<IEffect> { new DealDamage { Power = 55 } }
+                Effects = new List<IEffect>
+                {
+                    new DamageEffect
+                    {
+                        Selector = new AbilityTargetsSelector(),
+                        Power = 55
+                    }
+                }
             };
 
             var amourImpossible = new Synergy
@@ -58,8 +95,16 @@
                 RequiredSynergyBars = 2,
                 Effects = new List<IEffect>
                 {
-                    new HealCasters { Amount = 80 },
-                    new DealDamage { Power = 100 }
+                    new HealEffect
+                    {
+                        Selector = new CastersSelector(),
+                        Amount = 80
+                    },
+                    new DamageEffect
+                    {
+                        Selector = new AbilityTargetsSelector(),
+                        Power = 100
+                    }
                 }
             };
 
@@ -70,7 +115,14 @@
                 TargetMode = TargetMode.SingleEnemy,
                 RequiredCastersCount = 2,
                 RequiredSynergyBars = 1,
-                Effects = new List<IEffect> { new DealDamage { Power = 70 } }
+                Effects = new List<IEffect>
+                {
+                    new DamageEffect
+                    {
+                        Selector = new AbilityTargetsSelector(),
+                        Power = 70
+                    }
+                }
             };
 
             // --------------------------------------------------------------------
@@ -79,47 +131,41 @@
             var aldrick = new Character(
                 "Aldrick",
                 new Stats(MaxHp: 400, MaxMp: 30, Attack: 35, Defense: 15, Speed: 40),
-                new() { coupEpee, feu, soin, amourImpossible }
+                [coupEpee, feu, soin, amourImpossible]
             );
 
             var veya = new Character(
                 "Veya",
                 new Stats(MaxHp: 300, MaxMp: 60, Attack: 45, Defense: 10, Speed: 80),
-                new() { dechargeElectrique, foudre, soin, amourImpossible }
-            );
-
-            var yess = new Character(
-                "Yess",
-                new Stats(MaxHp: 300, MaxMp: 60, Attack: 45, Defense: 10, Speed: 80),
-                new() { dechargeElectrique, foudre, soin, amourImpossible }
+                [dechargeElectrique, foudre, soin, amourImpossible]
             );
 
             var gobelin1 = new Character(
                 "Gobelin 1",
                 new Stats(MaxHp: 160, MaxMp: 0, Attack: 25, Defense: 5, Speed: 60),
-                new() { coupEpee, comboGobelin }
+                [coupEpee, comboGobelin]
             );
 
             var gobelin2 = new Character(
                 "Gobelin 2",
                 new Stats(MaxHp: 160, MaxMp: 0, Attack: 25, Defense: 5, Speed: 50),
-                new() { coupEpee, comboGobelin }
+                [coupEpee, comboGobelin]
             );
 
             var mercenaire = new Character(
                 "Mercenaire",
                 new Stats(MaxHp: 220, MaxMp: 20, Attack: 40, Defense: 10, Speed: 70),
-                new() { coupEpee, soin }
+                [coupEpee, soin]
             );
 
             // --------------------------------------------------------------------
             // 3. CONSTITUTION DES ÉQUIPES ET DU COMBAT
             // --------------------------------------------------------------------
-            var playerTeam = new Team("Joueur", new[] { aldrick, veya });
-            var goblinsTeam = new Team("Gobelins", new[] { gobelin1, gobelin2 });
-            var mercenaryTeam = new Team("Mercenaire", new[] { mercenaire });
+            var playerTeam = new Team("Joueur", [aldrick, veya]);
+            var goblinsTeam = new Team("Gobelins", [gobelin1, gobelin2]);
+            var mercenaryTeam = new Team("Mercenaire", [mercenaire]);
 
-            var battle = new Battle(new[] { playerTeam, goblinsTeam, mercenaryTeam });
+            var battle = new Battle([playerTeam, goblinsTeam, mercenaryTeam]);
 
             int roundNumber = 1;
 
@@ -130,7 +176,7 @@
             {
                 Console.Clear();
                 Console.WriteLine($"=================== TOUR {roundNumber} ===================");
-                battle.DisplayStatus();
+                DisplayStatus(battle);
 
                 var roundActions = new List<QueuedAction>();
                 var busyCharacters = new HashSet<Character>();
@@ -150,7 +196,7 @@
 
                     // FILTRE CORRIGÉ : On vérifie que la synergie a suffisamment de partenaires NON OCCUPÉS
                     var usableAbilities = caster.Abilities
-                        .Where(a => a.CanUse(new[] { caster }, battle))
+                        .Where(a => a.CanUse([caster], battle))
                         .Where(a =>
                         {
                             if (a is Synergy syn)
@@ -262,7 +308,10 @@
                 Console.ReadLine();
 
                 Console.Clear();
+
+                Console.WriteLine("--- DÉBUT DU TOUR ---");
                 battle.ExecuteRound(roundActions);
+                Console.WriteLine("\n--- FIN DU TOUR ---");
 
                 roundNumber++;
 
@@ -274,7 +323,7 @@
             }
 
             Console.WriteLine("\n=================== COMBAT TERMINÉ ===================");
-            battle.DisplayStatus();
+            DisplayStatus(battle);
             Console.WriteLine($"Gagnant : {battle.Winner?.Name ?? "Égalité"}");
         }
 
@@ -286,6 +335,24 @@
                 if (int.TryParse(Console.ReadLine(), out int c) && c >= 1 && c <= max)
                     return c - 1;
                 Console.WriteLine($"Saisie invalide (1 à {max}).");
+            }
+        }
+
+        private static void DisplayStatus(Battle battle)
+        {
+            Console.WriteLine("\n=================== ÉTAT DU COMBAT ===================");
+            foreach (var team in battle.Teams)
+            {
+                string statusTag = team.IsDefeated ? " [ÉQUIPE ÉLIMINÉE]" : "";
+                Console.WriteLine($"ÉQUIPE : {team.Name.ToUpper()} (Synergie : {team.SynergyGauge.CurrentBars}/{team.SynergyGauge.MaxBars}){statusTag}");
+
+                foreach (var member in team.Members)
+                {
+                    string hpStatus = member.IsAlive ? $"{member.CurrentHp}/{member.BaseStats.MaxHp} PV" : "[K.O.]";
+                    string mpStatus = $"{member.CurrentMp}/{member.BaseStats.MaxMp} PM";
+                    Console.WriteLine($"  - {member.Name,-12} | {hpStatus,-14} | {mpStatus,-10} | Vit: {member.BaseStats.Speed,2}");
+                }
+                Console.WriteLine("------------------------------------------------------");
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿namespace Game
+﻿namespace Game.Core
 {
     public record struct Stats(int MaxHp, int MaxMp, int Attack, int Defense, int Speed);
 

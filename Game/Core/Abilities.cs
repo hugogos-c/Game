@@ -1,4 +1,4 @@
-﻿namespace Game
+﻿namespace Game.Core
 {
     public interface IAbility
     {
@@ -30,8 +30,17 @@
             {
                 if (context.IsAborted) break;
 
-                var result = effect.Execute(context);
-                context.Results.Add(result);
+                var targets = effect.Selector.Select(context);
+
+                foreach (var target in targets)
+                {
+                    var result = effect.Execute(new EffectContext
+                    {
+                        AbilityContext = context,
+                        Target = target,
+                    });
+                    context.Results.Add(result);
+                }
             }
         }
     }

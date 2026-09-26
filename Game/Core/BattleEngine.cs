@@ -1,4 +1,4 @@
-﻿namespace Game
+﻿namespace Game.Core
 {
     public class QueuedAction
     {
@@ -42,27 +42,8 @@
             Teams = teams.ToList();
         }
 
-        public void DisplayStatus()
-        {
-            Console.WriteLine("\n=================== ÉTAT DU COMBAT ===================");
-            foreach (var team in Teams)
-            {
-                string statusTag = team.IsDefeated ? " [ÉQUIPE ÉLIMINÉE]" : "";
-                Console.WriteLine($"ÉQUIPE : {team.Name.ToUpper()} (Synergie : {team.SynergyGauge.CurrentBars}/{team.SynergyGauge.MaxBars}){statusTag}");
-
-                foreach (var member in team.Members)
-                {
-                    string hpStatus = member.IsAlive ? $"{member.CurrentHp}/{member.BaseStats.MaxHp} PV" : "[K.O.]";
-                    string mpStatus = $"{member.CurrentMp}/{member.BaseStats.MaxMp} PM";
-                    Console.WriteLine($"  - {member.Name,-12} | {hpStatus,-14} | {mpStatus,-10} | Vit: {member.BaseStats.Speed,2}");
-                }
-                Console.WriteLine("------------------------------------------------------");
-            }
-        }
-
         public void ExecuteRound(List<QueuedAction> actions)
         {
-            Console.WriteLine("--- DÉBUT DU TOUR ---");
             var sortedActions = actions.OrderByDescending(a => a.Speed).ToList();
 
             foreach (var action in sortedActions)
@@ -101,8 +82,6 @@
 
                 action.Ability.Execute(context);
             }
-
-            Console.WriteLine("\n--- FIN DU TOUR ---");
         }
     }
 }

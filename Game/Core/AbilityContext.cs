@@ -1,4 +1,4 @@
-﻿namespace Game
+﻿namespace Game.Core
 {
     public enum TargetMode
     {
@@ -22,5 +22,11 @@
         public bool IsAborted { get; set; }
         public List<IEffectResult> Results { get; } = new();
         public Dictionary<string, object> CustomData { get; } = new();
+    }
+
+    public class EffectContext
+    {
+        public required AbilityContext AbilityContext { get; init; }
+        public required Character Target { get; init; }
     }
 }
