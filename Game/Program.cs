@@ -1,158 +1,292 @@
-﻿using Game;
-using Game.Battle;
-using Game.Characters;
-
-class Program
+﻿namespace Game
 {
-    static void Main(string[] args)
+    class Program
     {
-        // 1. Définition des compétences
-        var coupEpee = new Ability
+        static void Main(string[] args)
         {
-            Id = "coup_epee",
-            Name = "Coup d'épée",
-            Effects = new List<IEffect> { new DamageEffect { Power = 30, } }
-        };
-
-        var dechargeElectrique = new Ability
-        {
-            Id = "decharge_electrique",
-            Name = "Décharge électrique",
-            Effects = new List<IEffect> { new DamageEffect { Power = 40, } }
-        };
-
-        var soin = new Ability
-        {
-            Id = "soin",
-            Name = "Soin",
-            Effects = new List<IEffect> { new HealEffect { Amount = new ConstantValue { Amount = 60 } } }
-        };
-
-        // 2. Création des personnages
-        var aldrick = new Character("Aldrick", new Stats(MaxHp: 400, Attack: 35, Defense: 20, Speed: 40), [coupEpee, soin]);
-        var veya = new Character("Veya", new Stats(MaxHp: 300, Attack: 50, Defense: 10, Speed: 80), [coupEpee, dechargeElectrique]);
-
-        var gobelin1 = new Character("Gobelin 1", new Stats(MaxHp: 150, Attack: 25, Defense: 5, Speed: 60), [coupEpee]);
-        var gobelin2 = new Character("Gobelin 2", new Stats(MaxHp: 150, Attack: 25, Defense: 5, Speed: 50), [coupEpee]);
-
-        var mercenaire = new Character("Mercenaire", new Stats(MaxHp: 200, Attack: 45, Defense: 10, Speed: 70), [coupEpee, soin]);
-
-        // 3. Constitution des équipes et du combat
-        var heroesTeam = new Team("Héros", [aldrick, veya]);
-        var monstersTeam = new Team("Gobelins", [gobelin1, gobelin2]);
-        var renegadesTeam = new Team("Mercenaires", [mercenaire]);
-
-        var battle = new Battle([heroesTeam, monstersTeam, renegadesTeam]);
-
-        int roundNumber = 1;
-
-        // =================================================================
-        // BOUCLE INTERACTIVE DE COMBAT
-        // =================================================================
-        while (!battle.IsOver)
-        {
-            Console.Clear();
-            Console.WriteLine($"=================== TOUR {roundNumber} ===================");
-            battle.DisplayStatus();
-
-            var roundActions = new List<QueuedAction>();
-
-            // Récupération de tous les combattants encore en vie
-            var activeCharacters = battle.Teams
-                .SelectMany(t => t.Members)
-                .Where(c => c.IsAlive)
-                .ToList();
-
-            // PHASE 1 : Sélection des actions pour chaque personnage
-            foreach (var caster in activeCharacters)
+            // --------------------------------------------------------------------
+            // 1. DÉFINITION DES CAPACITÉS
+            // --------------------------------------------------------------------
+            var coupEpee = new Skill
             {
-                Console.WriteLine($"\n>>> Action pour : {caster.Name} ({caster.CurrentHp}/{caster.BaseStats.MaxHp} PV)");
+                Id = "coup_epee",
+                Name = "Coup d'épée",
+                TargetMode = TargetMode.SingleEnemy,
+                Effects = new List<IEffect> { new DealDamage { Power = 30 } }
+            };
 
-                //var availableAbilities = characterAbilities[caster];
+            var dechargeElectrique = new Skill
+            {
+                Id = "decharge_electrique",
+                Name = "Décharge électrique",
+                TargetMode = TargetMode.SingleEnemy,
+                Effects = new List<IEffect> { new DealDamage { Power = 25 } }
+            };
 
-                // Choisir la capacité
-                Console.WriteLine("Choisir une compétence :");
-                for (int i = 0; i < caster.Abilities.Count; i++)
+            var soin = new Skill
+            {
+                Id = "soin",
+                Name = "Soin",
+                TargetMode = TargetMode.SingleAlly,
+                Effects = new List<IEffect> { new Heal { Amount = 60 } }
+            };
+
+            var feu = new Spell
+            {
+                Id = "feu",
+                Name = "Feu",
+                TargetMode = TargetMode.SingleEnemy,
+                ManaCost = 10,
+                Effects = new List<IEffect> { new DealDamage { Power = 45 } }
+            };
+
+            var foudre = new Spell
+            {
+                Id = "foudre",
+                Name = "Foudre",
+                TargetMode = TargetMode.SingleEnemy,
+                ManaCost = 15,
+                Effects = new List<IEffect> { new DealDamage { Power = 55 } }
+            };
+
+            var amourImpossible = new Synergy
+            {
+                Id = "amour_impossible",
+                Name = "Amour Impossible",
+                TargetMode = TargetMode.SingleEnemy,
+                RequiredCastersCount = 2,
+                RequiredSynergyBars = 2,
+                Effects = new List<IEffect>
                 {
-                    Console.WriteLine($"  {i + 1}. {caster.Abilities[i].Name}");
+                    new HealCasters { Amount = 80 },
+                    new DealDamage { Power = 100 }
                 }
-                int abilityIndex = ReadChoice(caster.Abilities.Count);
-                var chosenAbility = caster.Abilities[abilityIndex];
+            };
 
-                // Récupération de toutes les cibles vivantes sur le terrain
-                var livingTargets = battle.Teams
+            var comboGobelin = new Synergy
+            {
+                Id = "combo_gobelin",
+                Name = "Combo Gobelin",
+                TargetMode = TargetMode.SingleEnemy,
+                RequiredCastersCount = 2,
+                RequiredSynergyBars = 1,
+                Effects = new List<IEffect> { new DealDamage { Power = 70 } }
+            };
+
+            // --------------------------------------------------------------------
+            // 2. INSTANCIATION DES PERSONNAGES
+            // --------------------------------------------------------------------
+            var aldrick = new Character(
+                "Aldrick",
+                new Stats(MaxHp: 400, MaxMp: 30, Attack: 35, Defense: 15, Speed: 40),
+                new() { coupEpee, feu, soin, amourImpossible }
+            );
+
+            var veya = new Character(
+                "Veya",
+                new Stats(MaxHp: 300, MaxMp: 60, Attack: 45, Defense: 10, Speed: 80),
+                new() { dechargeElectrique, foudre, soin, amourImpossible }
+            );
+
+            var yess = new Character(
+                "Yess",
+                new Stats(MaxHp: 300, MaxMp: 60, Attack: 45, Defense: 10, Speed: 80),
+                new() { dechargeElectrique, foudre, soin, amourImpossible }
+            );
+
+            var gobelin1 = new Character(
+                "Gobelin 1",
+                new Stats(MaxHp: 160, MaxMp: 0, Attack: 25, Defense: 5, Speed: 60),
+                new() { coupEpee, comboGobelin }
+            );
+
+            var gobelin2 = new Character(
+                "Gobelin 2",
+                new Stats(MaxHp: 160, MaxMp: 0, Attack: 25, Defense: 5, Speed: 50),
+                new() { coupEpee, comboGobelin }
+            );
+
+            var mercenaire = new Character(
+                "Mercenaire",
+                new Stats(MaxHp: 220, MaxMp: 20, Attack: 40, Defense: 10, Speed: 70),
+                new() { coupEpee, soin }
+            );
+
+            // --------------------------------------------------------------------
+            // 3. CONSTITUTION DES ÉQUIPES ET DU COMBAT
+            // --------------------------------------------------------------------
+            var playerTeam = new Team("Joueur", new[] { aldrick, veya });
+            var goblinsTeam = new Team("Gobelins", new[] { gobelin1, gobelin2 });
+            var mercenaryTeam = new Team("Mercenaire", new[] { mercenaire });
+
+            var battle = new Battle(new[] { playerTeam, goblinsTeam, mercenaryTeam });
+
+            int roundNumber = 1;
+
+            // --------------------------------------------------------------------
+            // 4. BOUCLE DE COMBAT INTERACTIVE
+            // --------------------------------------------------------------------
+            while (!battle.IsOver)
+            {
+                Console.Clear();
+                Console.WriteLine($"=================== TOUR {roundNumber} ===================");
+                battle.DisplayStatus();
+
+                var roundActions = new List<QueuedAction>();
+                var busyCharacters = new HashSet<Character>();
+
+                var activeCharacters = battle.Teams
                     .SelectMany(t => t.Members)
-                    .Where(m => m.IsAlive)
+                    .Where(c => c.IsAlive)
                     .ToList();
 
-                // Choisir la cible
-                Console.WriteLine($"Choisir la cible pour '{chosenAbility.Name}' :");
-                for (int i = 0; i < livingTargets.Count; i++)
+                foreach (var caster in activeCharacters)
                 {
-                    var target = livingTargets[i];
-                    Console.WriteLine($"  {i + 1}. {target.Name} ({target.CurrentHp}/{target.BaseStats.MaxHp} PV)");
+                    if (busyCharacters.Contains(caster)) continue;
+
+                    var casterTeam = battle.Teams.First(t => t.Members.Contains(caster));
+
+                    Console.WriteLine($"\n>>> Tour de : {caster.Name} (Équipe {casterTeam.Name})");
+
+                    // FILTRE CORRIGÉ : On vérifie que la synergie a suffisamment de partenaires NON OCCUPÉS
+                    var usableAbilities = caster.Abilities
+                        .Where(a => a.CanUse(new[] { caster }, battle))
+                        .Where(a =>
+                        {
+                            if (a is Synergy syn)
+                            {
+                                int availablePartnersCount = casterTeam.Members
+                                    .Count(m => m.IsAlive
+                                             && m != caster
+                                             && !busyCharacters.Contains(m)
+                                             && m.Abilities.Any(ab => ab.Id == syn.Id));
+
+                                return (availablePartnersCount + 1) >= syn.RequiredCastersCount;
+                            }
+                            return true;
+                        })
+                        .ToList();
+
+                    if (usableAbilities.Count == 0)
+                    {
+                        Console.WriteLine("Aucune capacité disponible.");
+                        continue;
+                    }
+
+                    Console.WriteLine("Choisir une capacité :");
+                    for (int i = 0; i < usableAbilities.Count; i++)
+                    {
+                        var ab = usableAbilities[i];
+                        string typeLabel = ab switch
+                        {
+                            Spell s => $"[Sort - {s.ManaCost} PM]",
+                            Synergy syn => $"[Synergie - {syn.RequiredSynergyBars} Barres]",
+                            _ => "[Skill]"
+                        };
+                        Console.WriteLine($"  {i + 1}. {ab.Name} {typeLabel}");
+                    }
+
+                    int choice = ReadChoice(usableAbilities.Count);
+                    var chosenAbility = usableAbilities[choice];
+
+                    var casters = new List<Character> { caster };
+
+                    if (chosenAbility is Synergy synergy)
+                    {
+                        int neededPartnersCount = synergy.RequiredCastersCount - 1;
+
+                        var availablePartners = casterTeam.Members
+                            .Where(m => m.IsAlive
+                                     && m != caster
+                                     && !busyCharacters.Contains(m)
+                                     && m.Abilities.Any(a => a.Id == chosenAbility.Id))
+                            .ToList();
+
+                        if (availablePartners.Count == neededPartnersCount)
+                        {
+                            casters.AddRange(availablePartners);
+                        }
+                        else if (availablePartners.Count > neededPartnersCount)
+                        {
+                            for (int p = 0; p < neededPartnersCount; p++)
+                            {
+                                Console.WriteLine($"\nChoisir le partenaire {p + 1}/{neededPartnersCount} pour la synergie :");
+                                for (int i = 0; i < availablePartners.Count; i++)
+                                {
+                                    Console.WriteLine($"  {i + 1}. {availablePartners[i].Name} ({availablePartners[i].CurrentHp}/{availablePartners[i].BaseStats.MaxHp} PV)");
+                                }
+
+                                int partnerChoice = ReadChoice(availablePartners.Count);
+                                var selectedPartner = availablePartners[partnerChoice];
+
+                                casters.Add(selectedPartner);
+                                availablePartners.RemoveAt(partnerChoice);
+                            }
+                        }
+
+                        string partners = string.Join(", ", casters.Select(c => c.Name));
+                        Console.WriteLine($"   🤝 Synergie préparée avec : {partners}");
+                    }
+
+                    List<Character> targets;
+                    if (chosenAbility.TargetMode == TargetMode.SingleEnemy || chosenAbility.TargetMode == TargetMode.SingleAlly)
+                    {
+                        var options = chosenAbility.TargetMode == TargetMode.SingleEnemy
+                            ? battle.Teams.Where(t => t != casterTeam).SelectMany(t => t.Members).Where(m => m.IsAlive).ToList()
+                            : casterTeam.Members.Where(m => m.IsAlive).ToList();
+
+                        Console.WriteLine("Choisir une cible :");
+                        for (int i = 0; i < options.Count; i++)
+                        {
+                            Console.WriteLine($"  {i + 1}. {options[i].Name} ({options[i].CurrentHp}/{options[i].BaseStats.MaxHp} PV)");
+                        }
+                        int targetChoice = ReadChoice(options.Count);
+                        targets = new List<Character> { options[targetChoice] };
+                    }
+                    else
+                    {
+                        targets = TargetResolver.ResolveAuto(chosenAbility.TargetMode, caster, casterTeam, battle.Teams);
+                    }
+
+                    roundActions.Add(new QueuedAction
+                    {
+                        Casters = casters,
+                        Targets = targets,
+                        Ability = chosenAbility
+                    });
+
+                    foreach (var c in casters) busyCharacters.Add(c);
                 }
-                int targetIndex = ReadChoice(livingTargets.Count);
-                var chosenTarget = livingTargets[targetIndex];
 
-                roundActions.Add(new QueuedAction
-                {
-                    Caster = caster,
-                    Target = chosenTarget,
-                    Ability = chosenAbility
-                });
-            }
-
-            // PHASE 2 : Exécution du tour
-            Console.WriteLine("\n[Toutes les actions sont validées. Appuyez sur Entrée pour lancer le tour...]");
-            Console.ReadLine();
-
-            Console.Clear();
-            battle.ExecuteRound(roundActions);
-
-            roundNumber++;
-
-            if (!battle.IsOver)
-            {
-                Console.WriteLine("\n[Appuyez sur Entrée pour passer au tour suivant...]");
+                Console.WriteLine("\n[Appuyez sur Entrée pour exécuter le tour...]");
                 Console.ReadLine();
+
+                Console.Clear();
+                battle.ExecuteRound(roundActions);
+
+                roundNumber++;
+
+                if (!battle.IsOver)
+                {
+                    Console.WriteLine("\n[Appuyez sur Entrée pour passer au tour suivant...]");
+                    Console.ReadLine();
+                }
             }
+
+            Console.WriteLine("\n=================== COMBAT TERMINÉ ===================");
+            battle.DisplayStatus();
+            Console.WriteLine($"Gagnant : {battle.Winner?.Name ?? "Égalité"}");
         }
 
-        // =================================================================
-        // FIN DU COMBAT
-        // =================================================================
-        Console.WriteLine("\n=================== COMBAT TERMINÉ ===================");
-        battle.DisplayStatus();
-
-        if (battle.Winner != null)
+        private static int ReadChoice(int max)
         {
-            Console.WriteLine($"Victoire de l'équipe : {battle.Winner.Name} !");
-        }
-        else
-        {
-            Console.WriteLine("Égalité ! Aucun survivant sur le terrain.");
-        }
-
-        Console.ReadLine();
-    }
-
-    /// <summary>
-    /// Utilitaire pour lire une saisie utilisateur sécurisée dans la console.
-    /// </summary>
-    private static int ReadChoice(int maxOptions)
-    {
-        while (true)
-        {
-            Console.Write("> Choix : ");
-            string? input = Console.ReadLine();
-
-            if (int.TryParse(input, out int choice) && choice >= 1 && choice <= maxOptions)
+            while (true)
             {
-                return choice - 1; // Convertit l'index affiché (1..N) en index tableau (0..N-1)
+                Console.Write("> ");
+                if (int.TryParse(Console.ReadLine(), out int c) && c >= 1 && c <= max)
+                    return c - 1;
+                Console.WriteLine($"Saisie invalide (1 à {max}).");
             }
-
-            Console.WriteLine($"Saisie invalide. Veuillez entrer un nombre entre 1 et {maxOptions}.");
         }
     }
 }
