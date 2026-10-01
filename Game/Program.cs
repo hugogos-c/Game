@@ -6,9 +6,7 @@ namespace Game
     {
         static void Main(string[] args)
         {
-            // --------------------------------------------------------------------
-            // 1. DÉFINITION DES CAPACITÉS
-            // --------------------------------------------------------------------
+            #region Définition des capacités
             var coupEpee = new Skill
             {
                 Id = "coup_epee",
@@ -22,7 +20,7 @@ namespace Game
                 [
                     new Sequence
                     {
-                        TargetSelector = new AbilityTargetsSelector(),
+                        TargetsSelector = new AbilityTargetsSelector(),
                         Effects =
                         [
                             new DamageEffect
@@ -48,7 +46,7 @@ namespace Game
                 [
                     new Sequence
                     {
-                        TargetSelector = new AbilityTargetsSelector(),
+                        TargetsSelector = new AbilityTargetsSelector(),
                         Effects =
                         [
                             new DamageEffect
@@ -73,7 +71,7 @@ namespace Game
                 [
                     new Sequence
                     {
-                        TargetSelector = new AbilityTargetsSelector(),
+                        TargetsSelector = new AbilityTargetsSelector(),
                         Effects =
                         [
                             new DamageEffect
@@ -98,23 +96,64 @@ namespace Game
                 [
                     new Sequence
                     {
-                        TargetSelector = new AbilityTargetsSelector(),
+                        TargetsSelector = new AbilityTargetsSelector(),
 
                         Effects =
                         [
                             new ConditionalEffect
                             {
-                                Condition = new TargetHpBelowCondition
+                                Condition = new ComparisonCondition
                                 {
-                                    Percentage = 10,
+                                    Left = new AggregateValue
+                                    {
+                                        Aggregation = new AverageAggregation(),
+                                        Values = new CharacterDataValues { CharacterData = CharacterData.CurrentHp, TargetsSelector = new AbilityTargetsSelector() },
+                                    },
+                                    Operator = ComparisonOperator.LessThanOrEqual,
+                                    Right = new PercentageValue
+                                    {
+                                        Percentage = new ConstantValue { Value = 10 },
+                                        Source = new AggregateValue
+                                        {
+                                            Aggregation = new AverageAggregation(),
+                                            Values = new CharacterDataValues { CharacterData = CharacterData.MaxHp, TargetsSelector = new AbilityTargetsSelector() },
+                                        },
+                                    },
                                 },
-
                                 Then = new DamageEffect
                                 {
                                     Power = 999,
                                 },
-
                                 Else = new DamageEffect
+                                {
+                                    Power = 50,
+                                },
+                            },
+                        ],
+                    },
+                ],
+            };
+
+            var coupChanceux = new Skill
+            {
+                Id = "coup_chanceux",
+                Name = "Coup chanceux",
+                TargetsFilters =
+                [
+                    new EnemiesFilter(),
+                    new IsAliveFilter(),
+                ],
+                Sequences =
+                [
+                    new Sequence
+                    {
+                        TargetsSelector = new AbilityTargetsSelector(),
+                        Effects =
+                        [
+                            new ChanceEffect
+                            {
+                                Chance = new ConstantValue { Value = 30 },
+                                Success = new DamageEffect
                                 {
                                     Power = 50,
                                 },
@@ -137,12 +176,20 @@ namespace Game
                 [
                     new Sequence
                     {
-                        TargetSelector = new AbilityTargetsSelector(),
+                        TargetsSelector = new AbilityTargetsSelector(),
                         Effects =
                         [
                             new HealEffect
                             {
-                                Amount = 60,
+                                Amount = new PercentageValue
+                                {
+                                    Percentage = new ConstantValue { Value = 10 },
+                                    Source = new AggregateValue
+                                    {
+                                        Aggregation = new AverageAggregation(),
+                                        Values = new CharacterDataValues{ CharacterData  = CharacterData.MaxHp, TargetsSelector = new AbilityTargetsSelector() },
+                                    },
+                                },
                             },
                         ],
                     },
@@ -162,12 +209,12 @@ namespace Game
                 [
                     new Sequence
                     {
-                        TargetSelector = new AbilityTargetsSelector(),
+                        TargetsSelector = new AbilityTargetsSelector(),
                         Effects =
                         [
                             new HealEffect
                             {
-                                Amount = 60,
+                                Amount = new ConstantValue { Value = 60 },
                             },
                         ],
                     },
@@ -188,12 +235,12 @@ namespace Game
                 [
                     new Sequence
                     {
-                        TargetSelector = new AbilityTargetsSelector(),
+                        TargetsSelector = new AbilityTargetsSelector(),
                         Effects =
                         [
                             new HealEffect
                             {
-                                Amount = 60,
+                                Amount = new ConstantValue { Value = 60 },
                             },
                         ],
                     },
@@ -214,7 +261,7 @@ namespace Game
                 [
                     new Sequence
                     {
-                        TargetSelector = new AbilityTargetsSelector(),
+                        TargetsSelector = new AbilityTargetsSelector(),
                         Effects =
                         [
                             new DamageEffect
@@ -240,7 +287,7 @@ namespace Game
                 [
                     new Sequence
                     {
-                        TargetSelector = new AbilityTargetsSelector(),
+                        TargetsSelector = new AbilityTargetsSelector(),
                         Effects =
                         [
                             new DamageEffect
@@ -267,18 +314,18 @@ namespace Game
                 [
                     new Sequence
                     {
-                        TargetSelector = new AbilityUsersSelector(),
+                        TargetsSelector = new AbilityUsersSelector(),
                         Effects =
                         [
                             new HealEffect
                             {
-                                Amount = 80,
+                                Amount = new ConstantValue { Value = 80 },
                             },
                         ],
                     },
                     new Sequence
                     {
-                        TargetSelector = new AbilityTargetsSelector(),
+                        TargetsSelector = new AbilityTargetsSelector(),
                         Effects =
                         [
                             new DamageEffect
@@ -305,7 +352,7 @@ namespace Game
                 [
                     new Sequence
                     {
-                        TargetSelector = new AbilityTargetsSelector(),
+                        TargetsSelector = new AbilityTargetsSelector(),
                         Effects =
                         [
                             new CompositeEffect
@@ -326,60 +373,70 @@ namespace Game
                     },
                 ],
             };
+            #endregion
+
+            #region Instanciation des personnages et constitution des équipes
+            var playerTeam = new Team("Joueur");
+            var goblinsTeam = new Team("Gobelins");
+            var mercenaryTeam = new Team("Mercenaire");
 
             // --------------------------------------------------------------------
-            // 2. INSTANCIATION DES PERSONNAGES
+            // 3. INSTANCIATION DES PERSONNAGES
             // --------------------------------------------------------------------
             var aldrick = new Character(
                 "Aldrick",
                 new Stats(MaxHp: 400, MaxMp: 30, Attack: 35, Defense: 15, Speed: 40),
-                [coupEpee, execution, feu, soin, resurrection, amourImpossible]
+                [coupEpee, execution, feu, soin, resurrection, amourImpossible],
+                playerTeam
             );
 
             var veya = new Character(
                 "Veya",
                 new Stats(MaxHp: 300, MaxMp: 60, Attack: 45, Defense: 10, Speed: 80),
-                [dechargeElectrique, tripleFleches, foudre, soin, amourImpossible]
+                [dechargeElectrique, tripleFleches, foudre, soin, amourImpossible],
+                playerTeam
             );
 
             var gobelin1 = new Character(
                 "Gobelin 1",
                 new Stats(MaxHp: 160, MaxMp: 0, Attack: 25, Defense: 5, Speed: 50),
-                [coupEpee, soin, soinMulti, comboGobelin]
+                [coupEpee, coupChanceux, soin, soinMulti, comboGobelin],
+                goblinsTeam
             );
 
             var gobelin2 = new Character(
                 "Gobelin 2",
                 new Stats(MaxHp: 160, MaxMp: 0, Attack: 25, Defense: 5, Speed: 50),
-                [coupEpee, soin, soinMulti, comboGobelin]
+                [coupEpee, coupChanceux, soin, soinMulti, comboGobelin],
+                goblinsTeam
             );
 
             var gobelin3 = new Character(
                 "Gobelin 3",
                 new Stats(MaxHp: 160, MaxMp: 0, Attack: 25, Defense: 5, Speed: 50),
-                [coupEpee, soin, soinMulti, comboGobelin]
+                [coupEpee, coupChanceux, soin, soinMulti, comboGobelin],
+                goblinsTeam
             );
 
             var mercenaire = new Character(
                 "Mercenaire",
                 new Stats(MaxHp: 220, MaxMp: 20, Attack: 40, Defense: 10, Speed: 70),
-                [coupEpee, tripleFleches, soin]
+                [coupEpee, tripleFleches, soin],
+                mercenaryTeam
             );
+            #endregion
 
             // --------------------------------------------------------------------
-            // 3. CONSTITUTION DES ÉQUIPES ET DU COMBAT
+            // 4. CONSTITUTION DU COMBAT
             // --------------------------------------------------------------------
-            var playerTeam = new Team("Joueur", [aldrick, veya]);
-            var goblinsTeam = new Team("Gobelins", [gobelin1, gobelin2, gobelin3]);
-            var mercenaryTeam = new Team("Mercenaire", [mercenaire]);
-
             var battle = new Battle([playerTeam, goblinsTeam, mercenaryTeam]);
 
             int roundNumber = 1;
 
             // --------------------------------------------------------------------
-            // 4. BOUCLE DE COMBAT INTERACTIVE
+            // 5. BOUCLE DE COMBAT INTERACTIVE
             // --------------------------------------------------------------------
+            #region Boucle de combat interactive
             while (!battle.IsOver)
             {
                 Console.Clear();
@@ -398,9 +455,7 @@ namespace Game
                 {
                     if (busyCharacters.Contains(caster)) continue;
 
-                    var casterTeam = battle.Teams.First(t => t.Members.Contains(caster));
-
-                    Console.WriteLine($"\n>>> Tour de : {caster.Name} (Équipe {casterTeam.Name})");
+                    Console.WriteLine($"\n>>> Tour de : {caster.Name} (Équipe {caster.Team.Name})");
 
                     var usableAbilities = caster.Abilities
                         .Where(a =>
@@ -427,7 +482,7 @@ namespace Game
                             if (a.RequiredParticipantsCount == 0)
                                 return true;
 
-                            int availableParticipantsCount = casterTeam.Members
+                            int availableParticipantsCount = caster.Team.Members
                                 .Count(m => m.IsAlive
                                          && m != caster
                                          && !busyCharacters.Contains(m)
@@ -463,7 +518,7 @@ namespace Game
 
                     if (chosenAbility.RequiredParticipantsCount > 0)
                     {
-                        var availableParticipants = casterTeam.Members
+                        var availableParticipants = caster.Team.Members
                             .Where(m => m.IsAlive
                                      && m != caster
                                      && !busyCharacters.Contains(m)
@@ -575,6 +630,7 @@ namespace Game
                     Console.ReadLine();
                 }
             }
+            #endregion
 
             Console.WriteLine("\n=================== COMBAT TERMINÉ ===================");
             DisplayStatus(battle);

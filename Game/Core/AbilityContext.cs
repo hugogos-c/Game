@@ -19,7 +19,7 @@
     public class EffectContext
     {
         public required AbilityContext AbilityContext { get; init; }
-        public required Character Target { get; init; }
+        public required Character CurrentTarget { get; init; }
     }
 
     public enum AbilityValidationError

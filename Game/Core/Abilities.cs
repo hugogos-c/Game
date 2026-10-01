@@ -85,18 +85,14 @@
 
         protected override AbilityValidationResult ValidateSpecific(AbilityContext context)
         {
-            var team = context.Battle.Teams.First(t => t.Members.Contains(context.Initiator));
-
-            if (!team.SynergyGauge.HasEnoughBars(RequiredSynergyBars)) return AbilityValidationResult.Invalid(AbilityValidationError.NotEnoughSynergy);
+            if (!context.Initiator.Team.SynergyGauge.HasEnoughBars(RequiredSynergyBars)) return AbilityValidationResult.Invalid(AbilityValidationError.NotEnoughSynergy);
 
             return AbilityValidationResult.Valid();
         }
 
         public override void PayCost(AbilityContext context)
         {
-            var team = context.Battle.Teams.First(t => t.Members.Contains(context.Initiator));
-
-            team.SynergyGauge.ConsumeBars(RequiredSynergyBars);
+            context.Initiator.Team.SynergyGauge.ConsumeBars(RequiredSynergyBars);
         }
     }
 }

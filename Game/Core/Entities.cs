@@ -5,6 +5,7 @@
     public sealed class Character
     {
         public string Name { get; }
+        public Team Team { get; }
         public Stats BaseStats { get; }
         public int CurrentHp { get; private set; }
         public int CurrentMp { get; private set; }
@@ -12,13 +13,16 @@
 
         public bool IsAlive => CurrentHp > 0;
 
-        public Character(string name, Stats stats, List<IAbility> abilities)
+        public Character(string name, Stats stats, List<IAbility> abilities, Team team)
         {
             Name = name;
             BaseStats = stats;
             CurrentHp = stats.MaxHp;
             CurrentMp = stats.MaxMp;
             Abilities = abilities;
+            Team = team;
+
+            Team.AddMember(this);
         }
 
         public void TakeDamage(int amount) => CurrentHp = Math.Max(0, CurrentHp - amount);
@@ -30,15 +34,19 @@
     public sealed class Team
     {
         public string Name { get; }
-        public List<Character> Members { get; }
+        public List<Character> Members { get; } = [];
         public SynergyGauge SynergyGauge { get; } = new();
 
         public bool IsDefeated => Members.All(m => !m.IsAlive);
 
-        public Team(string name, IEnumerable<Character> members)
+        public Team(string name)
         {
             Name = name;
-            Members = members.ToList();
+        }
+
+        public void AddMember(Character member)
+        {
+            if (!Members.Contains(member)) Members.Add(member);
         }
     }
 

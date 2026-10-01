@@ -31,22 +31,15 @@
     {
         public IReadOnlyList<Character> Filter(IReadOnlyList<Character> candidates, AbilityContext context)
         {
-            var initiatorTeam = context.Battle.Teams.First(t => t.Members.Contains(context.Initiator));
-
-            return candidates.Where(target => !initiatorTeam.Members.Contains(target)).ToList();
+            return candidates.Where(target => !context.Initiator.Team.Members.Contains(target)).ToList();
         }
     }
 
     public sealed class AlliesFilter : ITargetsFilter
     {
-        public IReadOnlyList<Character> Filter(
-            IReadOnlyList<Character> candidates,
-            AbilityContext context)
+        public IReadOnlyList<Character> Filter(IReadOnlyList<Character> candidates, AbilityContext context)
         {
-            var initiatorTeam = context.Battle.Teams
-                .First(t => t.Members.Contains(context.Initiator));
-
-            return candidates.Where(initiatorTeam.Members.Contains).ToList();
+            return candidates.Where(context.Initiator.Team.Members.Contains).ToList();
         }
     }
 

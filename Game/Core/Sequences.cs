@@ -2,19 +2,19 @@
 {
     public interface ISequence
     {
-        ITargetsSelector TargetSelector { get; }
+        ITargetsSelector TargetsSelector { get; }
         IReadOnlyList<IEffect> Effects { get; }
         void Execute(AbilityContext context);
     }
 
     public sealed class Sequence : ISequence
     {
-        public required ITargetsSelector TargetSelector { get; init; }
+        public required ITargetsSelector TargetsSelector { get; init; }
         public required IReadOnlyList<IEffect> Effects { get; init; }
 
         public void Execute(AbilityContext context)
         {
-            var targets = TargetSelector.Select(context);
+            var targets = TargetsSelector.Select(context);
 
             foreach (var effect in Effects)
             {
@@ -25,7 +25,7 @@
                     var result = effect.Apply(new EffectContext
                     {
                         AbilityContext = context,
-                        Target = target,
+                        CurrentTarget = target,
                     });
 
                     context.Results.Add(result);
