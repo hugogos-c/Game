@@ -1,4 +1,6 @@
-﻿namespace Game.Core
+﻿using Game.Core.Entities;
+
+namespace Game.Core
 {
     public interface IEffectResult { }
 
@@ -9,7 +11,7 @@
         public required Character Initiator { get; init; }
         public required IReadOnlyList<Character> Participants { get; init; }
         public required IReadOnlyList<Character> Targets { get; init; }
-        public required Battle Battle { get; init; }
+        public required Battle.Battle Battle { get; init; }
 
         public bool IsAborted { get; set; }
         public List<IEffectResult> Results { get; } = new();

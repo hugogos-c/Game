@@ -1,4 +1,6 @@
-﻿namespace Game.Core
+﻿using Game.Core.Effects;
+
+namespace Game.Core
 {
     public interface ISequence
     {

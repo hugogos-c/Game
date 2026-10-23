@@ -1,4 +1,6 @@
-﻿namespace Game.Core
+﻿using Game.Core.Entities;
+
+namespace Game.Core
 {
     public interface ITargetsFilter
     {

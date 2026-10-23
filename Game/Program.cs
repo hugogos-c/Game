@@ -1,4 +1,12 @@
 ﻿using Game.Core;
+using Game.Core.Abilities;
+using Game.Core.Aggregations;
+using Game.Core.Battle;
+using Game.Core.Conditions;
+using Game.Core.Effects;
+using Game.Core.Entities;
+using Game.Core.Values;
+using Game.Core.ValuesCollections;
 
 namespace Game
 {
@@ -107,7 +115,7 @@ namespace Game
                                     Left = new AggregateValue
                                     {
                                         Aggregation = new AverageAggregation(),
-                                        Values = new CharacterDataValues { CharacterData = CharacterData.CurrentHp, TargetsSelector = new AbilityTargetsSelector() },
+                                        ValuesCollection = new CharacterDataValuesCollection { CharacterData = CharacterData.CurrentHp, TargetsSelector = new AbilityTargetsSelector() },
                                     },
                                     Operator = ComparisonOperator.LessThanOrEqual,
                                     Right = new PercentageValue
@@ -116,7 +124,7 @@ namespace Game
                                         Source = new AggregateValue
                                         {
                                             Aggregation = new AverageAggregation(),
-                                            Values = new CharacterDataValues { CharacterData = CharacterData.MaxHp, TargetsSelector = new AbilityTargetsSelector() },
+                                            ValuesCollection = new CharacterDataValuesCollection { CharacterData = CharacterData.MaxHp, TargetsSelector = new AbilityTargetsSelector() },
                                         },
                                     },
                                 },
@@ -187,7 +195,7 @@ namespace Game
                                     Source = new AggregateValue
                                     {
                                         Aggregation = new AverageAggregation(),
-                                        Values = new CharacterDataValues{ CharacterData  = CharacterData.MaxHp, TargetsSelector = new AbilityTargetsSelector() },
+                                        ValuesCollection = new CharacterDataValuesCollection{ CharacterData  = CharacterData.MaxHp, TargetsSelector = new AbilityTargetsSelector() },
                                     },
                                 },
                             },
@@ -443,7 +451,7 @@ namespace Game
                 Console.WriteLine($"=================== TOUR {roundNumber} ===================");
                 DisplayStatus(battle);
 
-                var roundActions = new List<QueuedAction>();
+                var roundActions = new List<BattleAction>();
                 var busyCharacters = new HashSet<Character>();
 
                 var activeCharacters = battle.Teams
@@ -600,7 +608,7 @@ namespace Game
                         }
                     }
 
-                    roundActions.Add(new QueuedAction
+                    roundActions.Add(new BattleAction
                     {
                         Initiator = caster,
                         Participants = participants,

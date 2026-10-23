@@ -1,15 +1,7 @@
-﻿namespace Game.Core
+﻿using Game.Core.Entities;
+
+namespace Game.Core.Battle
 {
-    public class QueuedAction
-    {
-        public required Character Initiator { get; init; }
-        public required IReadOnlyList<Character> Participants { get; init; }
-        public required IReadOnlyList<Character> Targets { get; init; }
-        public required IAbility Ability { get; init; }
-
-        public int Speed => Initiator.BaseStats.Speed;
-    }
-
     public class Battle
     {
         public List<Team> Teams { get; }
@@ -22,7 +14,7 @@
             Teams = teams.ToList();
         }
 
-        public void ExecuteRound(List<QueuedAction> actions)
+        public void ExecuteRound(List<BattleAction> actions)
         {
             var sortedActions = actions.OrderByDescending(a => a.Speed).ToList();
 
@@ -65,7 +57,7 @@
                 #region À mettre dans QueuedAction.Execute()
                 action.Ability.PayCost(context);
 
-                string castersName = string.Join(" & ", [action.Initiator.Name, ..action.Participants.Select(c => c.Name)]);
+                string castersName = string.Join(" & ", [action.Initiator.Name, .. action.Participants.Select(c => c.Name)]);
                 Console.WriteLine($"\n> Exec : '{action.Ability.Name}' par {castersName}");
 
                 action.Ability.Use(context);
