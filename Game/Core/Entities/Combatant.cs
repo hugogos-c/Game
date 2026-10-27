@@ -2,7 +2,7 @@
 
 namespace Game.Core.Entities
 {
-    public sealed class Character
+    public sealed class Combatant
     {
         public string Name { get; }
         public Team Team { get; }
@@ -13,7 +13,7 @@ namespace Game.Core.Entities
 
         public bool IsAlive => CurrentHp > 0;
 
-        public Character(string name, Stats stats, List<IAbility> abilities, Team team)
+        public Combatant(string name, Stats stats, List<IAbility> abilities, Team team)
         {
             Name = name;
             BaseStats = stats;
