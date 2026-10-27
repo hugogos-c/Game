@@ -391,42 +391,42 @@ namespace Game
             // --------------------------------------------------------------------
             // 3. INSTANCIATION DES PERSONNAGES
             // --------------------------------------------------------------------
-            var aldrick = new Character(
+            var aldrick = new Combatant(
                 "Aldrick",
                 new Stats(MaxHp: 400, MaxMp: 30, Attack: 35, Defense: 15, Speed: 40),
                 [coupEpee, execution, feu, soin, resurrection, amourImpossible],
                 playerTeam
             );
 
-            var veya = new Character(
+            var veya = new Combatant(
                 "Veya",
                 new Stats(MaxHp: 300, MaxMp: 60, Attack: 45, Defense: 10, Speed: 80),
                 [dechargeElectrique, tripleFleches, foudre, soin, amourImpossible],
                 playerTeam
             );
 
-            var gobelin1 = new Character(
+            var gobelin1 = new Combatant(
                 "Gobelin 1",
                 new Stats(MaxHp: 160, MaxMp: 0, Attack: 25, Defense: 5, Speed: 50),
                 [coupEpee, coupChanceux, soin, soinMulti, comboGobelin],
                 goblinsTeam
             );
 
-            var gobelin2 = new Character(
+            var gobelin2 = new Combatant(
                 "Gobelin 2",
                 new Stats(MaxHp: 160, MaxMp: 0, Attack: 25, Defense: 5, Speed: 50),
                 [coupEpee, coupChanceux, soin, soinMulti, comboGobelin],
                 goblinsTeam
             );
 
-            var gobelin3 = new Character(
+            var gobelin3 = new Combatant(
                 "Gobelin 3",
                 new Stats(MaxHp: 160, MaxMp: 0, Attack: 25, Defense: 5, Speed: 50),
                 [coupEpee, coupChanceux, soin, soinMulti, comboGobelin],
                 goblinsTeam
             );
 
-            var mercenaire = new Character(
+            var mercenaire = new Combatant(
                 "Mercenaire",
                 new Stats(MaxHp: 220, MaxMp: 20, Attack: 40, Defense: 10, Speed: 70),
                 [coupEpee, tripleFleches, soin],
@@ -453,7 +453,7 @@ namespace Game
                 DisplayStatus(battle);
 
                 var roundActions = new List<BattleAction>();
-                var busyCharacters = new HashSet<Character>();
+                var busyCharacters = new HashSet<Combatant>();
 
                 var activeCharacters = battle.Teams
                     .SelectMany(t => t.Members)
@@ -523,7 +523,7 @@ namespace Game
                     int choice = ReadChoice(usableAbilities.Count);
                     var chosenAbility = usableAbilities[choice];
 
-                    var participants = new List<Character>();
+                    var participants = new List<Combatant>();
 
                     if (chosenAbility.RequiredParticipantsCount > 0)
                     {
@@ -571,7 +571,7 @@ namespace Game
                         Battle = battle
                     });
 
-                    List<Character> targets;
+                    List<Combatant> targets;
 
                     if (availableTargets.Count == 0)
                     {
@@ -586,7 +586,7 @@ namespace Game
                     {
                         int targetsCount = Math.Min(chosenAbility.RequiredTargetsCount, availableTargets.Count);
 
-                        targets = new List<Character>();
+                        targets = new List<Combatant>();
 
                         for (int i = 0; i < targetsCount; i++)
                         {
