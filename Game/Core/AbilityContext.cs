@@ -1,4 +1,5 @@
-﻿using Game.Core.Entities;
+﻿using Game.Core.Battles;
+using Game.Core.Entities;
 
 namespace Game.Core
 {
@@ -11,7 +12,7 @@ namespace Game.Core
         public required Combatant Initiator { get; init; }
         public required IReadOnlyList<Combatant> Participants { get; init; }
         public required IReadOnlyList<Combatant> Targets { get; init; }
-        public required Battle.Battle Battle { get; init; }
+        public required Battle Battle { get; init; }
 
         public bool IsAborted { get; set; }
         public List<IEffectResult> Results { get; } = new();

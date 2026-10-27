@@ -1,25 +1,8 @@
-﻿using Game.Core.Entities;
-
-namespace Game.Core.Battle
+﻿namespace Game.Core.Battles
 {
-    public class Battle
+    public static class BattleEngine
     {
-        #region BattleState ou Battle
-        public List<Team> Teams { get; }
-        public int RoundNumber { get; private set; } = 1;
-        public int MaxRound { get; } = -1;
-
-        public bool IsOver => RoundNumber >= MaxRound || Teams.Count(t => !t.IsDefeated) <= 1;
-        public Team? Winner => IsOver ? Teams.FirstOrDefault(t => !t.IsDefeated) : null;
-        #endregion
-
-        public Battle(IEnumerable<Team> teams, int maxRound)
-        {
-            Teams = teams.ToList();
-            MaxRound = maxRound;
-        }
-
-        public void ExecuteRound(List<BattleAction> actions)
+        public static void ExecuteRound(Battle battle, List<BattleAction> actions)
         {
             var sortedActions = actions.OrderByDescending(a => a.Speed).ToList();
 
@@ -30,7 +13,7 @@ namespace Game.Core.Battle
                     Initiator = action.Initiator,
                     Participants = action.Participants,
                     Targets = action.Targets,
-                    Battle = this
+                    Battle = battle,
                 };
 
                 var availableTargets = action.Ability.GetAvailableTargets(initialContext);
@@ -48,7 +31,7 @@ namespace Game.Core.Battle
                     Initiator = action.Initiator,
                     Participants = action.Participants,
                     Targets = validTargets,
-                    Battle = this
+                    Battle = battle,
                 };
 
                 var validation = action.Ability.Validate(context);
@@ -69,7 +52,7 @@ namespace Game.Core.Battle
                 #endregion
             }
 
-            RoundNumber++;
+            battle.AdvanceRound();
         }
     }
 }

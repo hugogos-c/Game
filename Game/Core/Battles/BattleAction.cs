@@ -1,7 +1,7 @@
 ﻿using Game.Core.Abilities;
 using Game.Core.Entities;
 
-namespace Game.Core.Battle
+namespace Game.Core.Battles
 {
     public class BattleAction
     {

@@ -1,7 +1,7 @@
 ﻿using Game.Core;
 using Game.Core.Abilities;
 using Game.Core.Aggregations;
-using Game.Core.Battle;
+using Game.Core.Battles;
 using Game.Core.Conditions;
 using Game.Core.Effects;
 using Game.Core.Entities;
@@ -628,7 +628,7 @@ namespace Game
                 Console.Clear();
 
                 Console.WriteLine("--- DÉBUT DU TOUR ---");
-                battle.ExecuteRound(roundActions);
+                BattleEngine.ExecuteRound(battle, roundActions);
                 Console.WriteLine("\n--- FIN DU TOUR ---");
 
                 if (!battle.IsOver)
