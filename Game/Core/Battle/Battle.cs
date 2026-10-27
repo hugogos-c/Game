@@ -4,14 +4,19 @@ namespace Game.Core.Battle
 {
     public class Battle
     {
+        #region BattleState ou Battle
         public List<Team> Teams { get; }
+        public int RoundNumber { get; private set; } = 1;
+        public int MaxRound { get; } = -1;
 
-        public bool IsOver => Teams.Count(t => !t.IsDefeated) <= 1;
+        public bool IsOver => RoundNumber >= MaxRound || Teams.Count(t => !t.IsDefeated) <= 1;
         public Team? Winner => IsOver ? Teams.FirstOrDefault(t => !t.IsDefeated) : null;
+        #endregion
 
-        public Battle(IEnumerable<Team> teams)
+        public Battle(IEnumerable<Team> teams, int maxRound)
         {
             Teams = teams.ToList();
+            MaxRound = maxRound;
         }
 
         public void ExecuteRound(List<BattleAction> actions)
@@ -63,6 +68,8 @@ namespace Game.Core.Battle
                 action.Ability.Use(context);
                 #endregion
             }
+
+            RoundNumber++;
         }
     }
 }

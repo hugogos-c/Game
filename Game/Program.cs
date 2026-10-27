@@ -437,9 +437,10 @@ namespace Game
             // --------------------------------------------------------------------
             // 4. CONSTITUTION DU COMBAT
             // --------------------------------------------------------------------
-            var battle = new Battle([playerTeam, goblinsTeam, mercenaryTeam]);
-
-            int roundNumber = 1;
+            var battle = new Battle(
+                [playerTeam, goblinsTeam, mercenaryTeam],
+                -1
+            );
 
             // --------------------------------------------------------------------
             // 5. BOUCLE DE COMBAT INTERACTIVE
@@ -448,7 +449,7 @@ namespace Game
             while (!battle.IsOver)
             {
                 Console.Clear();
-                Console.WriteLine($"=================== TOUR {roundNumber} ===================");
+                Console.WriteLine($"=================== TOUR {battle.RoundNumber} ===================");
                 DisplayStatus(battle);
 
                 var roundActions = new List<BattleAction>();
@@ -629,8 +630,6 @@ namespace Game
                 Console.WriteLine("--- DÉBUT DU TOUR ---");
                 battle.ExecuteRound(roundActions);
                 Console.WriteLine("\n--- FIN DU TOUR ---");
-
-                roundNumber++;
 
                 if (!battle.IsOver)
                 {
