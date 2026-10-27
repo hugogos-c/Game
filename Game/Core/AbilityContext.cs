@@ -8,9 +8,9 @@ namespace Game.Core
 
     public class AbilityContext
     {
-        public required Character Initiator { get; init; }
-        public required IReadOnlyList<Character> Participants { get; init; }
-        public required IReadOnlyList<Character> Targets { get; init; }
+        public required Combatant Initiator { get; init; }
+        public required IReadOnlyList<Combatant> Participants { get; init; }
+        public required IReadOnlyList<Combatant> Targets { get; init; }
         public required Battle.Battle Battle { get; init; }
 
         public bool IsAborted { get; set; }
@@ -21,7 +21,7 @@ namespace Game.Core
     public class EffectContext
     {
         public required AbilityContext AbilityContext { get; init; }
-        public required Character CurrentTarget { get; init; }
+        public required Combatant CurrentTarget { get; init; }
     }
 
     public enum AbilityValidationError

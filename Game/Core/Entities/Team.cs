@@ -3,7 +3,7 @@
     public sealed class Team
     {
         public string Name { get; }
-        public List<Character> Members { get; } = [];
+        public List<Combatant> Members { get; } = [];
         public SynergyGauge SynergyGauge { get; } = new();
 
         public bool IsDefeated => Members.All(m => !m.IsAlive);
@@ -13,7 +13,7 @@
             Name = name;
         }
 
-        public void AddMember(Character member)
+        public void AddMember(Combatant member)
         {
             if (!Members.Contains(member)) Members.Add(member);
         }

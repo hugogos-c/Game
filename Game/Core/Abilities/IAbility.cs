@@ -11,7 +11,7 @@ namespace Game.Core.Abilities
         int RequiredParticipantsCount { get; }
         IReadOnlyList<ISequence> Sequences { get; }
 
-        IReadOnlyList<Character> GetAvailableTargets(AbilityContext context);
+        IReadOnlyList<Combatant> GetAvailableTargets(AbilityContext context);
         AbilityValidationResult Validate(AbilityContext context);
         void PayCost(AbilityContext context);
         void Use(AbilityContext context);

@@ -11,9 +11,9 @@ namespace Game.Core.Abilities
         public int RequiredParticipantsCount { get; init; } = 0;
         public required IReadOnlyList<ISequence> Sequences { get; init; }
 
-        public IReadOnlyList<Character> GetAvailableTargets(AbilityContext context)
+        public IReadOnlyList<Combatant> GetAvailableTargets(AbilityContext context)
         {
-            IReadOnlyList<Character> availableTargets = context.Battle.Teams.SelectMany(team => team.Members).ToList();
+            IReadOnlyList<Combatant> availableTargets = context.Battle.Teams.SelectMany(team => team.Members).ToList();
 
             foreach (var filter in TargetsFilters)
             {
